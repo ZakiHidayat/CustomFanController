@@ -5,6 +5,7 @@ import android.graphics.*
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.withStyledAttributes
 import java.time.format.TextStyle
 import kotlin.math.cos
 import kotlin.math.min
@@ -32,6 +33,11 @@ class DialView @JvmOverloads constructor(
     attribut: AttributeSet? = null,
     defStylAttributeSet: Int = 0
 ) : View (context, attribut, defStylAttributeSet) {
+
+    private var fanSpeedLowColor = 0
+    private var fanSpeedMediumColor = 0
+    private var fanSpeedHighColor = 0
+
     private var radius = 0.0f
     private var fanSpeed = FanSpeed.OFF
 
@@ -46,6 +52,12 @@ class DialView @JvmOverloads constructor(
 
     init {
         isClickable = true
+
+        context.withStyledAttributes(attribut, R.styleable.DialView){
+            fanSpeedLowColor = getColor(R.styleable.DialView_fanColor1, 0)
+            fanSpeedMediumColor = getColor(R.styleable.DialView_fanColor2, 0)
+            fanSpeedHighColor = getColor(R.styleable.DialView_fanColor3, 0)
+        }
     }
 
     override fun performClick(): Boolean {
@@ -72,7 +84,7 @@ class DialView @JvmOverloads constructor(
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        paint.color = if (fanSpeed == FanSpeed.OFF) Color.GRAY else Color.GREEN
+//        paint.color = if (fanSpeed == FanSpeed.OFF) Color.GRAY else Color.GREEN
         canvas?.drawCircle((width/2).toFloat(), (height / 2).toFloat(), radius, paint)
 
         val markerRadius = radius + RADIUS_OFFSET_INDICATOR
@@ -87,6 +99,14 @@ class DialView @JvmOverloads constructor(
             val label = resources.getString(i.label)
             canvas?.drawText(label, pointPosition.x, pointPosition.y, paint)
         }
+
+        //set ganti warna
+        paint.color = when(fanSpeed){
+            FanSpeed.OFF -> Color.GRAY
+            FanSpeed.LOW -> fanSpeedLowColor
+            FanSpeed.MEDIUM -> fanSpeedMediumColor
+            FanSpeed.HIGH -> fanSpeedHighColor
+        } as Int
     }
 
 
